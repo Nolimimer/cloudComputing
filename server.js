@@ -8,6 +8,8 @@ app.use(express.json());
 // Set Static File Directory
 app.use(express.static(__dirname + '/public'));
 
+const BooksModel = require("./models/books");
+
 
 /************
  * DATABASE *
@@ -42,21 +44,22 @@ app.get('/api', (req, res) => {
       {method: 'GET', path: '/api', description: 'Describes all available endpoints'},
       {method: 'GET', path: '/api/profile', description: 'Data about me'},
       {method: 'GET', path: '/api/books/', description: 'Get All books information'},
+      {method: 'DELETE', path: '/api/books/', description: 'Delete book with id'},
+      {method: 'GET', path: 'api/test/', description: 'Test Path'}
       // TODO: Write other API end-points description here like above
     ]
   })
 });
-// TODO:  Fill the values
 app.get('/api/profile', (req, res) => {
   res.json({
-    'name': '',
-    'homeCountry': '',
-    'degreeProgram': '',//informatics or CSE.. etc
-    'email': '',
+    'name': 'Michael',
+    'homeCountry': 'Germany',
+    'degreeProgram': 'Information Systems',//informatics or CSE.. etc
+    'email': 'ga48xop@mytum.de',
     'deployedURLLink': '',//leave this blank for the first exercise
     'apiDocumentationURL': '', //leave this also blank for the first exercise
-    'currentCity': '',
-    'hobbies': []
+    'currentCity': 'Munich',
+    'hobbies': ['Cloud Computing', 'Information Systems']
 
   })
 });
@@ -91,8 +94,16 @@ app.post('/api/books/', (req, res) => {
   /*
    * return the new book information object as json
    */
-  var newBook = {};
-  res.json(newBook);
+  var newBook = new BooksModel({
+    title: req.body.title,
+    author: req.body.author,
+    releaseDate: req.body.releaseDate,
+    genre: req.body.genre,
+    rating: req.body.rating,
+    language: req.body.language
+  });
+  newBook.save();
+  return res.json(newBook);
 });
 
 /*
@@ -112,8 +123,12 @@ app.put('/api/books/:id', (req, res) => {
   /*
    * Send the updated book information as a JSON object
    */
-  var updatedBookInfo = {};
-  res.json(updatedBookInfo);
+  const id = req.params.courseId;
+  var updated = BooksModel.update({_id: bookId}, {$set: bookNewData
+  }
+).exec();
+  var updatedBookInfo = updated;
+  return res.json(updatedBookInfo);
 });
 /*
  * Delete a book based upon the specified ID
@@ -130,8 +145,8 @@ app.delete('/api/books/:id', (req, res) => {
   /*
    * Send the deleted book information as a JSON object
    */
-  var deletedBook = {};
-  res.json(deletedBook);
+  var deletedBook = BooksModel.remove({_id: bookId}).exec();
+  return res.json(deletedBook);
 });
 
 
